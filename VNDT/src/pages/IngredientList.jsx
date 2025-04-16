@@ -76,9 +76,9 @@ const IngredientList = () => {
       await axios.post(apiUrl, formData);
       fetchIngredients();
       setIsAdding(false);
-      alert("Thêm sản phẩm.thành công!");
+      alert("Thêm sản phẩm thành công!");
     } catch (error) {
-      alert("Lỗi khi thêm sản phẩm.");
+      alert("Lỗi khi thêm sản phẩm ");
     }
   };
 
@@ -87,22 +87,22 @@ const IngredientList = () => {
       await axios.put(`${apiUrl}/${isEditing.id}`, formData);
       fetchIngredients();
       setIsEditing(null);
-      alert("Cập nhật sản phẩm.thành công!");
+      alert("Cập nhật sản phẩm thành công!");
     } catch (error) {
-      alert("Lỗi khi cập nhật sản phẩm.");
+      alert("Lỗi khi cập nhật sản phẩm ");
     }
   };
 
   const handleDeleteIngredient = async (id) => {
     const confirmDelete = window.confirm(
-      "Bạn có chắc chắn muốn xoá sản phẩm.này không?"
+      "Bạn có chắc chắn muốn xoá sản phẩm này không?"
     );
     if (confirmDelete) {
       try {
         await axios.delete(`${apiUrl}/${id}`);
         fetchIngredients();
       } catch (error) {
-        alert("Lỗi khi xoá sản phẩm.");
+        alert("Lỗi khi xoá sản phẩm ");
       }
     }
   };
@@ -115,7 +115,7 @@ const IngredientList = () => {
   const renderForm = () => (
     <div className="bg-white p-6 border rounded-lg shadow-md my-6">
       <h2 className="text-2xl font-bold mb-4">
-        {isEditing ? "Chỉnh sửa" : "Thêm"} sản phẩm.{" "}
+        {isEditing ? "Chỉnh sửa" : "Thêm"} sản phẩm{" "}
       </h2>
       <div className="grid grid-cols-2 gap-4">
         {Object.keys(formData).map((key) => (
@@ -160,7 +160,7 @@ const IngredientList = () => {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-center text-cyan-700">
-        Danh sách sản phẩm.{" "}
+        Danh sách sản phẩm{" "}
       </h1>
 
       <div className="flex justify-between items-center mb-6">
@@ -168,7 +168,7 @@ const IngredientList = () => {
           <input
             type="text"
             className="w-full px-4 py-2 border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            placeholder="Tìm kiếm sản phẩm..."
+            placeholder="Tìm kiếm sản phẩm .."
             value={searchTerm}
             onChange={handleSearchChange}
           />
@@ -203,10 +203,10 @@ const IngredientList = () => {
           <thead>
             <tr className="bg-cyan-600 text-white text-lg">
               <th className="px-6 py-3 text-left">Hình ảnh</th>
-              <th className="px-6 py-3 text-left">Tên sản phẩm</th>
+              <th className="px-6 py-3 text-left">Tên sản phẩm </th>
               <th className="px-6 py-3 text-left">Số lượng</th>
               <th className="px-6 py-3 text-left">Đơn vị tính</th>
-              <th className="px-6 py-3 text-left">Mã sản phẩm</th>
+              <th className="px-6 py-3 text-left">Mã sản phẩm </th>
               <th className="px-6 py-3 text-left">Nhà cung cấp</th>
               <th className="px-6 py-3 text-left">Ngày nhập kho</th>
               <th className="px-6 py-3 text-left">Hành động</th>
@@ -216,7 +216,7 @@ const IngredientList = () => {
             {currentIngredients.length === 0 ? (
               <tr>
                 <td colSpan="8" className="text-center text-red-500 py-6">
-                  Không tìm thấy sản phẩm.
+                  Không tìm thấy sản phẩm
                 </td>
               </tr>
             ) : (
