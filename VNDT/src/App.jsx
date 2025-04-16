@@ -1,32 +1,53 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import UseReducerComponent from "./components/UseReducerComponent";
-import UseRefComponent from "./components/UseRefComponent";
-import HomePage from "./pages/HomePage";
-import RootPage from "./components/RootPage";
-import UseEffectComponent from "./components/UseEffectComponent";
-import Memomo from "./components/Memomo";
-import UseCallbackComponent from "./components/UseCallbackComponent";
-import UseMemoComponent from "./components/UseMemoComponent";
-import UseContextComponent from "./store/UseContextComponent";
-import Calculator from "./components/Calculator";
-import TodoApp from "./components/TodoApp";
-const router = createBrowserRouter([
-  {
-    path: "",
-    element: <RootPage />,
-    children: [
-      { path: "", element: <HomePage /> },
-      { path: "/reducer", element: <UseReducerComponent /> },
-      { path: "/effect", element: <UseEffectComponent /> },
-      { path: "/ref", element: <UseRefComponent /> },
-      { path: "/memo", element: <Memomo /> },
-      { path: "/callback", element: <UseCallbackComponent /> },
-      { path: "/usememo", element: <UseMemoComponent /> },
-      { path: "/usecontext", element: <TodoApp /> },
-    ],
-  },
-]);
+import { Routes, Route } from "react-router-dom";
+import IngredientList from "./pages/IngredientList";
+import IngredientForm from "./pages/IngredientForm";
+import StockManager from "./pages/StockManager";
+import Statistics from "./pages/Statistics";
+import SearchPage from "./pages/SearchPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LoginPage from "./pages/LoginPage";
+import { useAuth } from "./context/AuthContext";
+import Header from "./components/Header";
+import "./index.css";
+
 function App() {
-  return <RouterProvider router={router} />;
+  const { user } = useAuth();
+
+  return (
+    <div className="flex">
+      {/* Chỉ hiển thị Header nếu người dùng đã đăng nhập */}
+      {user && <Header />}
+
+      <main className="flex-1 p-4">
+        <Routes>
+          {/* Trang đăng nhập */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Các route bảo vệ */}
+          <Route
+            path="/"
+            element={<ProtectedRoute Component={IngredientList} />}
+          />
+          <Route
+            path="/form"
+            element={<ProtectedRoute Component={IngredientForm} />}
+          />
+          <Route
+            path="/stock"
+            element={<ProtectedRoute Component={StockManager} />}
+          />
+          <Route
+            path="/stats"
+            element={<ProtectedRoute Component={Statistics} />}
+          />
+          <Route
+            path="/search"
+            element={<ProtectedRoute Component={SearchPage} />}
+          />
+        </Routes>
+      </main>
+    </div>
+  );
 }
+
 export default App;
