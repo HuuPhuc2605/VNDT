@@ -1,13 +1,14 @@
 import { Routes, Route } from "react-router-dom";
 import IngredientList from "./pages/IngredientList";
-import IngredientForm from "./pages/IngredientForm";
+import SupplierList from "./pages/SupplierList";
 import StockManager from "./pages/StockManager";
 import Statistics from "./pages/Statistics";
 import SearchPage from "./pages/SearchPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
+import Notification from "./pages/Notification";
 import { useAuth } from "./context/AuthContext";
-import Header from "./components/Header";
+import Header from "./components/Headerr";
 import "./index.css";
 
 function App() {
@@ -29,8 +30,8 @@ function App() {
             element={<ProtectedRoute Component={IngredientList} />}
           />
           <Route
-            path="/form"
-            element={<ProtectedRoute Component={IngredientForm} />}
+            path="/supplierlist"
+            element={<ProtectedRoute Component={SupplierList} />}
           />
           <Route
             path="/stock"
@@ -43,6 +44,10 @@ function App() {
           <Route
             path="/search"
             element={<ProtectedRoute Component={SearchPage} />}
+          />
+          <Route
+            path="/notifications"
+            element={<ProtectedRoute Component={Notification} />}
           />
         </Routes>
       </main>

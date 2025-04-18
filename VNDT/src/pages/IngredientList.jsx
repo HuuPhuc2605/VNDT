@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { FaSearch, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { FaSearch, FaPlus } from "react-icons/fa";
+import { Pencil, Trash2 } from "lucide-react";
 
 const IngredientList = () => {
   const [ingredients, setIngredients] = useState([]);
@@ -15,9 +16,12 @@ const IngredientList = () => {
     unit: "",
     productCode: "",
     supplier: "",
+    category: "",
     expiryDate: "",
     image: "",
   });
+  const [selectedSupplier, setSelectedSupplier] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const itemsPerPage = 5;
 
   const apiUrl = "https://67fa743d8ee14a542627bf04.mockapi.io/Lab6/VNDT";
@@ -41,13 +45,17 @@ const IngredientList = () => {
   const filteredIngredients = useMemo(() => {
     const lowerSearch = searchTerm.trim().toLowerCase();
     return ingredients.filter((ingredient) => {
-      return (
+      const matchesSearch =
         ingredient.name.toLowerCase().includes(lowerSearch) ||
-        ingredient.productCode.toLowerCase().includes(lowerSearch) ||
-        ingredient.supplier.toLowerCase().includes(lowerSearch)
-      );
+        ingredient.productCode.toLowerCase().includes(lowerSearch);
+      const matchesSupplier =
+        !selectedSupplier || ingredient.supplier === selectedSupplier;
+      const matchesCategory =
+        !selectedCategory || ingredient.category === selectedCategory;
+
+      return matchesSearch && matchesSupplier && matchesCategory;
     });
-  }, [ingredients, searchTerm]);
+  }, [ingredients, searchTerm, selectedSupplier, selectedCategory]);
 
   const indexOfLastIngredient = currentPage * itemsPerPage;
   const indexOfFirstIngredient = indexOfLastIngredient - itemsPerPage;
@@ -115,7 +123,7 @@ const IngredientList = () => {
   const renderForm = () => (
     <div className="bg-white p-6 border rounded-lg shadow-md my-6">
       <h2 className="text-2xl font-bold mb-4">
-        {isEditing ? "Chỉnh sửa" : "Thêm"} sản phẩm{" "}
+        {isEditing ? "Chỉnh sửa" : "Thêm"} sản phẩm
       </h2>
       <div className="grid grid-cols-2 gap-4">
         {Object.keys(formData).map((key) => (
@@ -160,62 +168,114 @@ const IngredientList = () => {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-center text-cyan-700">
-        Danh sách sản phẩm{" "}
+        Danh sách sản phẩm
       </h1>
 
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative w-1/2">
-          <input
-            type="text"
-            className="w-full px-4 py-2 border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            placeholder="Tìm kiếm sản phẩm .."
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-          <div className="absolute right-3 top-3">
-            <FaSearch size={20} className="text-cyan-500" />
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-6">
+        {/* Nhóm: tìm kiếm + lọc */}
+        <div className="flex flex-col md:flex-row md:gap-4 flex-1">
+          {/* Ô tìm kiếm */}
+          <div className="relative w-full md:w-1/2">
+            <input
+              type="text"
+              className="w-full px-4 py-2 border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              placeholder="Tìm theo tên hoặc mã sản phẩm..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+            <div className="absolute right-3 top-3 text-cyan-500">
+              <FaSearch size={18} />
+            </div>
+          </div>
+
+          {/* Lọc theo nhà cung cấp */}
+          <div className="w-full md:w-60">
+            <select
+              value={selectedSupplier}
+              onChange={(e) => {
+                setSelectedSupplier(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full px-4 py-2 border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="">Tất cả nhà cung cấp</option>
+              {Array.from(
+                new Set(ingredients.map((item) => item.supplier))
+              ).map((supplier, idx) => (
+                <option key={idx} value={supplier}>
+                  {supplier}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Lọc theo danh mục */}
+          <div className="w-full md:w-48">
+            <select
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                setCurrentPage(1); // 🛠️ Thêm dòng này để reset về trang đầu
+              }}
+              className="w-full px-4 py-2 border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="">Tất cả danh mục</option>
+              {Array.from(
+                new Set(ingredients.map((item) => item.category))
+              ).map((category, idx) => (
+                <option key={idx} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
-        <button
-          onClick={() => {
-            setIsAdding(true);
-            setFormData({
-              name: "",
-              quantity: "",
-              unit: "",
-              productCode: "",
-              supplier: "",
-              expiryDate: "",
-              image: "",
-            });
-          }}
-          className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg"
-        >
-          <FaPlus /> Thêm
-        </button>
+        {/* Nút thêm sản phẩm */}
+        <div className="w-full md:w-auto">
+          <button
+            onClick={() => {
+              setIsAdding(true);
+              setFormData({
+                name: "",
+                quantity: "",
+                unit: "",
+                productCode: "",
+                supplier: "",
+                category: "",
+                expiryDate: "",
+                image: "",
+              });
+            }}
+            className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg w-full md:w-auto justify-center hover:bg-green-600"
+          >
+            <FaPlus /> Thêm sản phẩm
+          </button>
+        </div>
       </div>
 
       {(isAdding || isEditing) && renderForm()}
 
+      {/* Bảng sản phẩm */}
       <div className="overflow-x-auto shadow-lg rounded-lg">
         <table className="min-w-full bg-white border border-gray-300 rounded-lg">
           <thead>
             <tr className="bg-cyan-600 text-white text-lg">
               <th className="px-6 py-3 text-left">Hình ảnh</th>
-              <th className="px-6 py-3 text-left">Tên sản phẩm </th>
+              <th className="px-6 py-3 text-left">Tên sản phẩm</th>
               <th className="px-6 py-3 text-left">Số lượng</th>
-              <th className="px-6 py-3 text-left">Đơn vị tính</th>
-              <th className="px-6 py-3 text-left">Mã sản phẩm </th>
+              <th className="px-6 py-3 text-left">Đơn vị</th>
+              <th className="px-6 py-3 text-left">Mã SP</th>
               <th className="px-6 py-3 text-left">Nhà cung cấp</th>
-              <th className="px-6 py-3 text-left">Ngày nhập kho</th>
+              <th className="px-6 py-3 text-left">Danh mục</th>
+              <th className="px-6 py-3 text-left">Ngày nhập</th>
               <th className="px-6 py-3 text-left">Hành động</th>
             </tr>
           </thead>
           <tbody>
             {currentIngredients.length === 0 ? (
               <tr>
-                <td colSpan="8" className="text-center text-red-500 py-6">
+                <td colSpan="9" className="text-center text-red-500 py-6">
                   Không tìm thấy sản phẩm
                 </td>
               </tr>
@@ -226,7 +286,7 @@ const IngredientList = () => {
                     <img
                       src={ingredient.image}
                       alt={ingredient.name}
-                      className="w-24 h-24 object-cover rounded-md"
+                      className="w-16 h-16 object-cover rounded"
                     />
                   </td>
                   <td className="px-6 py-4">{ingredient.name}</td>
@@ -234,19 +294,20 @@ const IngredientList = () => {
                   <td className="px-6 py-4">{ingredient.unit}</td>
                   <td className="px-6 py-4">{ingredient.productCode}</td>
                   <td className="px-6 py-4">{ingredient.supplier}</td>
+                  <td className="px-6 py-4">{ingredient.category}</td>
                   <td className="px-6 py-4">{ingredient.expiryDate}</td>
                   <td className="px-6 py-4 flex gap-2">
                     <button
                       onClick={() => startEdit(ingredient)}
-                      className="text-yellow-500"
+                      className="text-blue-500 hover:text-blue-700"
                     >
-                      <FaEdit />
+                      <Pencil size={20} />
                     </button>
                     <button
                       onClick={() => handleDeleteIngredient(ingredient.id)}
-                      className="text-red-600"
+                      className="text-red-500 hover:text-red-700"
                     >
-                      <FaTrash />
+                      <Trash2 size={20} />
                     </button>
                   </td>
                 </tr>
@@ -256,25 +317,21 @@ const IngredientList = () => {
         </table>
       </div>
 
-      <div className="flex justify-center mt-6">
-        <nav>
-          <ul className="flex gap-2">
-            {Array.from({ length: totalPages }).map((_, index) => (
-              <li key={index}>
-                <button
-                  onClick={() => handlePageChange(index + 1)}
-                  className={`px-4 py-2 rounded-lg ${
-                    currentPage === index + 1
-                      ? "bg-cyan-600 text-white"
-                      : "bg-white text-cyan-600 border border-cyan-600"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+      {/* Phân trang */}
+      <div className="mt-6 flex justify-center gap-2">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index}
+            onClick={() => handlePageChange(index + 1)}
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === index + 1
+                ? "bg-cyan-600 text-white"
+                : "bg-gray-300 text-black"
+            }`}
+          >
+            {index + 1}
+          </button>
+        ))}
       </div>
     </div>
   );
