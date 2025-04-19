@@ -1,17 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { X } from "lucide-react";
 import { FaBell } from "react-icons/fa";
+import { useNotifications } from "../context/NotificationContext";
 
-const NotificationsPage = () => {
-  const [notifications, setNotifications] = useState([
-    { id: 1, message: "✅ Thêm sản phẩm mới thành công" },
-    { id: 2, message: "🏢 Đã thêm nhà cung cấp mới" },
-    { id: 3, message: "📦 Xuất kho sản phẩm: Bánh Mì" },
-  ]);
-
-  const handleDelete = (id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
+const Notifications = () => {
+  const { notifications, removeNotification } = useNotifications();
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -33,7 +26,7 @@ const NotificationsPage = () => {
             >
               <span className="text-gray-800 text-base">{n.message}</span>
               <button
-                onClick={() => handleDelete(n.id)}
+                onClick={() => removeNotification(n.id)}
                 className="text-red-500 hover:text-red-700"
               >
                 <X size={20} />
@@ -46,4 +39,4 @@ const NotificationsPage = () => {
   );
 };
 
-export default NotificationsPage;
+export default Notifications;

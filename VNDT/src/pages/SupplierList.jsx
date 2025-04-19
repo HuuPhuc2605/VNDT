@@ -152,7 +152,7 @@ const SupplierList = () => {
         {filteredSuppliers.map((supplier, idx) => (
           <div
             key={idx}
-            className="bg-white border border-gray-200 rounded-xl shadow p-6 hover:shadow-lg transition-all duration-300 relative"
+            className="bg-cyan-50 border p-4 border-gray-200 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 relative"
           >
             <h2 className="text-xl font-bold text-teal-600 mb-2">
               🏢 {supplier.supplier}

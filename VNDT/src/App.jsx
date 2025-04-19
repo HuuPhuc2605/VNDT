@@ -6,7 +6,7 @@ import Statistics from "./pages/Statistics";
 import SearchPage from "./pages/SearchPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
-import Notification from "./pages/Notification";
+import Notifications from "./pages/Notification";
 import { useAuth } from "./context/AuthContext";
 import Header from "./components/Headerr";
 import "./index.css";
@@ -47,7 +47,7 @@ function App() {
           />
           <Route
             path="/notifications"
-            element={<ProtectedRoute Component={Notification} />}
+            element={<ProtectedRoute Component={Notifications} />}
           />
         </Routes>
       </main>

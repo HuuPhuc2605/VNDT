@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { FiEye, FiEyeOff } from "react-icons/fi"; // 👁️ Thêm icon
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -13,7 +16,7 @@ const LoginPage = () => {
 
     if (username === "admin" && password === "123456") {
       login({ username });
-      navigate("/"); // Chuyển hướng tới trang chủ sau khi đăng nhập thành công
+      navigate("/");
     } else {
       alert("Sai thông tin đăng nhập");
     }
@@ -21,7 +24,7 @@ const LoginPage = () => {
 
   return (
     <div className="relative w-full h-screen bg-gradient-to-b from-teal-500 via-cyan-600 to-indigo-700">
-      {/* Background Image for the warehouse */}
+      {/* Background */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
@@ -29,9 +32,8 @@ const LoginPage = () => {
             'url("https://res.cloudinary.com/dkzpfo8b2/image/upload/v1744806504/nen_m3rrvc.png")',
         }}
       ></div>
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black opacity-40"></div>{" "}
-      {/* Lớp phủ mờ */}
+      <div className="absolute inset-0 bg-black opacity-40"></div>
+
       {/* Login Box */}
       <div className="flex items-center justify-center min-h-screen relative z-10">
         <div className="bg-white shadow-2xl rounded-3xl p-10 w-full max-w-md transform transition-all duration-500 hover:scale-105">
@@ -58,14 +60,23 @@ const LoginPage = () => {
               <label className="block text-cyan-700 font-medium mb-2 text-lg">
                 Mật khẩu
               </label>
-              <input
-                type="password"
-                placeholder="Nhập mật khẩu"
-                className="w-full px-4 py-3 border border-cyan-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-lg"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Nhập mật khẩu"
+                  className="w-full px-4 py-3 border border-cyan-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-lg pr-12"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 text-cyan-600 hover:text-cyan-800"
+                >
+                  {showPassword ? <FiEyeOff size={22} /> : <FiEye size={22} />}
+                </button>
+              </div>
             </div>
 
             <button

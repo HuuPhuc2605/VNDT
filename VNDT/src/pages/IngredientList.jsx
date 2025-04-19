@@ -2,8 +2,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { FaSearch, FaPlus } from "react-icons/fa";
 import { Pencil, Trash2 } from "lucide-react";
+import { useNotifications } from "../context/NotificationContext";
 
 const IngredientList = () => {
+  const { addNotification } = useNotifications();
+
   const [ingredients, setIngredients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -247,7 +250,7 @@ const IngredientList = () => {
                 image: "",
               });
             }}
-            className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg w-full md:w-auto justify-center hover:bg-green-600"
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg w-full md:w-auto justify-center hover:bg-green-600"
           >
             <FaPlus /> Thêm sản phẩm
           </button>
