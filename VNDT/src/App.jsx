@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import Notifications from "./pages/Notification";
 import { useAuth } from "./context/AuthContext";
 import Header from "./components/Headerr";
+import Footer from './components/Footer';
 import "./index.css";
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
             element={<ProtectedRoute Component={Notifications} />}
           />
         </Routes>
+        <Footer />
       </main>
     </div>
   );
