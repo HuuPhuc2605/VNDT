@@ -26,7 +26,7 @@ const sampleNotifications = [
   {
     id: "inventory-1003",
     type: "warning",
-    message: "Sản phẩm 'Bột mì đa dụng' sắp hết hàng (còn 8 kg)",
+    message: "Sản phẩm 'Loa Bluetooth JBL Charge 5' sắp hết hàng (còn 10 chiếc)",
     time: "2023-11-14T14:20:00",
     read: false,
     category: "inventory",
@@ -34,7 +34,7 @@ const sampleNotifications = [
   {
     id: "inventory-1004",
     type: "error",
-    message: "Sản phẩm 'Sữa tươi' đã hết hạn sử dụng",
+    message: "Sản phẩm 'Loa Bluetooth JBL Charge 4' đã hết",
     time: "2023-11-14T10:15:00",
     read: false,
     category: "inventory",
@@ -58,7 +58,7 @@ const sampleNotifications = [
   {
     id: "inventory-1007",
     type: "warning",
-    message: "Sản phẩm 'Đường trắng' sắp hết hạn sử dụng (còn 5 ngày)",
+    message: "Sản phẩm '	Smartwatch Samsung Galaxy Watch 5' sắp hết (còn 15 chiếc)",
     time: "2023-11-12T11:45:00",
     read: true,
     category: "inventory",
