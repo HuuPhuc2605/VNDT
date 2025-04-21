@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useMemo } from "react"
 import axios from "axios"
-import { FaExclamationTriangle, FaCalendarAlt, FaBoxOpen, FaChartPie, FaChartBar } from "react-icons/fa"
+import { FaChartPie, FaChartBar } from "react-icons/fa"
 import { useNotifications } from "../context/NotificationContext"
-import { FaBuilding } from "react-icons/fa"
+import { FaBuilding, FaBoxOpen } from "react-icons/fa"
 
 const Statistics = () => {
   const [ingredients, setIngredients] = useState([])
@@ -45,20 +45,6 @@ const Statistics = () => {
 
     // Số lượng danh mục
     const uniqueCategories = new Set(ingredients.map((item) => item.category)).size
-
-    // Sản phẩm sắp hết hàng (số lượng < 10)
-    const lowStockItems = ingredients.filter((item) => Number.parseInt(item.quantity || 0) < 10)
-
-    // Sản phẩm sắp hết hạn (giả định expiryDate là ngày hết hạn)
-    const today = new Date()
-    const thirtyDaysFromNow = new Date()
-    thirtyDaysFromNow.setDate(today.getDate() + 30)
-
-    const expiringItems = ingredients.filter((item) => {
-      if (!item.expiryDate) return false
-      const expiryDate = new Date(item.expiryDate)
-      return expiryDate > today && expiryDate < thirtyDaysFromNow
-    })
 
     // Dữ liệu cho biểu đồ theo danh mục
     const categoryData = []
@@ -114,8 +100,6 @@ const Statistics = () => {
       totalQuantity,
       uniqueSuppliers,
       uniqueCategories,
-      lowStockItems,
-      expiringItems,
       categoryData,
       supplierData,
     }
@@ -137,21 +121,6 @@ const Statistics = () => {
     "#8dd1e1",
   ]
 
-  // Gửi thông báo cho các sản phẩm sắp hết hàng
-  useEffect(() => {
-    if (stats?.lowStockItems?.length > 0) {
-      stats.lowStockItems.forEach((item) => {
-        addNotification(`Cảnh báo: Sản phẩm "${item.name}" sắp hết hàng (chỉ còn ${item.quantity} ${item.unit})`)
-      })
-    }
-
-    if (stats?.expiringItems?.length > 0) {
-      stats.expiringItems.forEach((item) => {
-        addNotification(`Cảnh báo: Sản phẩm "${item.name}" sắp hết hạn vào ngày ${item.expiryDate}`)
-      })
-    }
-  }, [stats, addNotification])
-
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -162,7 +131,7 @@ const Statistics = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center text-cyan-700">Thống kê & Cảnh báo</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center text-cyan-700">Thống kê</h1>
 
       {/* Tabs */}
       <div className="flex flex-wrap gap-2 mb-6 justify-center">
@@ -183,12 +152,6 @@ const Statistics = () => {
           className={`px-4 py-2 rounded-lg flex items-center gap-2 ${activeTab === "suppliers" ? "bg-cyan-600 text-white" : "bg-gray-200"}`}
         >
           <FaChartBar /> Theo nhà cung cấp
-        </button>
-        <button
-          onClick={() => setActiveTab("warnings")}
-          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${activeTab === "warnings" ? "bg-cyan-600 text-white" : "bg-gray-200"}`}
-        >
-          <FaExclamationTriangle /> Cảnh báo
         </button>
       </div>
 
@@ -347,84 +310,6 @@ const Statistics = () => {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === "warnings" && stats && (
-          <div>
-            <h2 className="text-2xl font-bold mb-6 text-cyan-700">Cảnh báo hệ thống</h2>
-
-            {/* Cảnh báo sắp hết hàng */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2 text-red-600">
-                <FaExclamationTriangle /> Sản phẩm sắp hết hàng ({stats.lowStockItems.length})
-              </h3>
-
-              {stats.lowStockItems.length === 0 ? (
-                <p className="text-green-600">Không có sản phẩm nào sắp hết hàng.</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white border border-gray-300 rounded-lg">
-                    <thead>
-                      <tr className="bg-red-500 text-white">
-                        <th className="px-6 py-3 text-left">Tên sản phẩm</th>
-                        <th className="px-6 py-3 text-left">Mã SP</th>
-                        <th className="px-6 py-3 text-left">Số lượng</th>
-                        <th className="px-6 py-3 text-left">Đơn vị</th>
-                        <th className="px-6 py-3 text-left">Nhà cung cấp</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {stats.lowStockItems.map((item, index) => (
-                        <tr key={index} className="hover:bg-red-50 border-b">
-                          <td className="px-6 py-4 font-medium">{item.name}</td>
-                          <td className="px-6 py-4">{item.productCode}</td>
-                          <td className="px-6 py-4 text-red-600 font-bold">{item.quantity}</td>
-                          <td className="px-6 py-4">{item.unit}</td>
-                          <td className="px-6 py-4">{item.supplier}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-
-            {/* Cảnh báo sắp hết hạn */}
-            <div>
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2 text-orange-600">
-                <FaCalendarAlt /> Sản phẩm sắp hết hạn ({stats.expiringItems.length})
-              </h3>
-
-              {stats.expiringItems.length === 0 ? (
-                <p className="text-green-600">Không có sản phẩm nào sắp hết hạn.</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white border border-gray-300 rounded-lg">
-                    <thead>
-                      <tr className="bg-orange-500 text-white">
-                        <th className="px-6 py-3 text-left">Tên sản phẩm</th>
-                        <th className="px-6 py-3 text-left">Mã SP</th>
-                        <th className="px-6 py-3 text-left">Ngày hết hạn</th>
-                        <th className="px-6 py-3 text-left">Số lượng</th>
-                        <th className="px-6 py-3 text-left">Nhà cung cấp</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {stats.expiringItems.map((item, index) => (
-                        <tr key={index} className="hover:bg-orange-50 border-b">
-                          <td className="px-6 py-4 font-medium">{item.name}</td>
-                          <td className="px-6 py-4">{item.productCode}</td>
-                          <td className="px-6 py-4 text-orange-600 font-bold">{item.expiryDate}</td>
-                          <td className="px-6 py-4">{item.quantity}</td>
-                          <td className="px-6 py-4">{item.supplier}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
             </div>
           </div>
         )}
