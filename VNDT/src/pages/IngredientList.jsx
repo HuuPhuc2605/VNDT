@@ -289,33 +289,42 @@ const IngredientList = () => {
           currentIngredients.map((ingredient) => (
             <div
               key={ingredient.id}
-              className="relative bg-white p-5 pb-20 rounded-2xl shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-transform duration-300 border border-cyan-100"
+              className="relative p-4 bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-transform duration-300 border border-cyan-100 flex flex-col h-[520px] pb-24"
             >
-              <img
-                src={ingredient.image}
-                alt={ingredient.name}
-                className="w-64 h-90 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-xl font-bold text-cyan-700 mb-1 ">
-                {ingredient.name}
-              </h3>
-              <p className="text-sm text-gray-600 mb-1">
-                Mã sản phẩm: {ingredient.productCode}
-              </p>
-              <p className="text-sm text-gray-600 mb-1">
-                Số lượng: {ingredient.quantity} {ingredient.unit}
-              </p>
-              <p className="text-sm text-gray-600 mb-1">
-                Danh mục: {ingredient.category}
-              </p>
-              <p className="text-sm text-gray-600 mb-1">
-                Nhà cung cấp: {ingredient.supplier}
-              </p>
-              <p className="text-sm text-gray-600 mb-3">
-                Ngày nhập: {ingredient.entryDate}
-              </p>
+              {/* ẢNH */}
+              <div className="w-full h-52 flex  items-center mb-5">
+                <img
+                  src={ingredient.image}
+                  alt={ingredient.name}
+                  className="w-56 h-90 object-cover rounded-t-2xl"
+                />
+              </div>
 
-              {/* Nút cố định dưới */}
+              {/* THÔNG TIN */}
+              <div className="flex-1 flex flex-col justify-end px-5">
+                <div>
+                  <h3 className="text-xl font-bold text-cyan-700 mb-1">
+                    {ingredient.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-1">
+                    Mã sản phẩm: {ingredient.productCode}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-1">
+                    Số lượng: {ingredient.quantity} {ingredient.unit}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-1">
+                    Danh mục: {ingredient.category}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-1">
+                    Nhà cung cấp: {ingredient.supplier}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Ngày nhập: {ingredient.entryDate}
+                  </p>
+                </div>
+              </div>
+
+              {/* NÚT */}
               <div className="absolute bottom-4 left-5 right-5 flex gap-3">
                 <button
                   onClick={() => startEdit(ingredient)}
