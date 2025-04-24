@@ -9,7 +9,8 @@ import LoginPage from "./pages/LoginPage";
 import Notifications from "./pages/Notification";
 import { useAuth } from "./context/AuthContext";
 import Header from "./components/Headerr";
-import Footer from './components/Footer';
+import Footer from "./components/Footer";
+import HomePage from "./pages/HomePage";
 import "./index.css";
 
 function App() {
@@ -26,12 +27,13 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
 
           {/* Các route bảo vệ */}
+          <Route path="/" element={<ProtectedRoute Component={HomePage} />} />
           <Route
-            path="/"
+            path="/ingredient"
             element={<ProtectedRoute Component={IngredientList} />}
           />
           <Route
-            path="/supplierlist"
+            path="/supplier"
             element={<ProtectedRoute Component={SupplierList} />}
           />
           <Route

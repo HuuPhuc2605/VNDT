@@ -20,18 +20,14 @@ const IngredientList = () => {
     productCode: "",
     supplier: "",
     category: "",
-    expiryDate: "",
+    entryDate: "",
     image: "",
   });
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
 
   const apiUrl = "https://67fa743d8ee14a542627bf04.mockapi.io/Lab6/VNDT";
-
-  useEffect(() => {
-    fetchIngredients();
-  }, []);
 
   const fetchIngredients = async () => {
     setLoading(true);
@@ -39,11 +35,15 @@ const IngredientList = () => {
       const response = await axios.get(apiUrl);
       setIngredients(response.data);
     } catch (error) {
-      console.error("Error fetching data", error);
+      console.error("Lỗi khi tải dữ liệu", error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchIngredients();
+  }, []);
 
   const filteredIngredients = useMemo(() => {
     const lowerSearch = searchTerm.trim().toLowerCase();
@@ -55,7 +55,6 @@ const IngredientList = () => {
         !selectedSupplier || ingredient.supplier === selectedSupplier;
       const matchesCategory =
         !selectedCategory || ingredient.category === selectedCategory;
-
       return matchesSearch && matchesSupplier && matchesCategory;
     });
   }, [ingredients, searchTerm, selectedSupplier, selectedCategory]);
@@ -66,17 +65,7 @@ const IngredientList = () => {
     indexOfFirstIngredient,
     indexOfLastIngredient
   );
-
   const totalPages = Math.ceil(filteredIngredients.length / itemsPerPage);
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -89,7 +78,7 @@ const IngredientList = () => {
       setIsAdding(false);
       alert("Thêm sản phẩm thành công!");
     } catch (error) {
-      alert("Lỗi khi thêm sản phẩm ");
+      alert("Lỗi khi thêm sản phẩm");
     }
   };
 
@@ -100,20 +89,17 @@ const IngredientList = () => {
       setIsEditing(null);
       alert("Cập nhật sản phẩm thành công!");
     } catch (error) {
-      alert("Lỗi khi cập nhật sản phẩm ");
+      alert("Lỗi khi cập nhật sản phẩm");
     }
   };
 
   const handleDeleteIngredient = async (id) => {
-    const confirmDelete = window.confirm(
-      "Bạn có chắc chắn muốn xoá sản phẩm này không?"
-    );
-    if (confirmDelete) {
+    if (window.confirm("Bạn có chắc chắn muốn xoá sản phẩm này không?")) {
       try {
         await axios.delete(`${apiUrl}/${id}`);
         fetchIngredients();
       } catch (error) {
-        alert("Lỗi khi xoá sản phẩm ");
+        alert("Lỗi khi xoá sản phẩm");
       }
     }
   };
@@ -124,31 +110,79 @@ const IngredientList = () => {
   };
 
   const renderForm = () => (
-    <div className="bg-white p-6 border rounded-lg shadow-md my-6">
-      <h2 className="text-2xl font-bold mb-4">
-        {isEditing ? "Chỉnh sửa" : "Thêm"} sản phẩm
+    <div className="bg-white p-8 border rounded-2xl shadow-xl my-8">
+      <h2 className="text-2xl font-bold mb-6 text-cyan-700">
+        {isEditing ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm"}
       </h2>
-      <div className="grid grid-cols-2 gap-4">
-        {Object.keys(formData).map((key) => (
-          <input
-            key={key}
-            name={key}
-            placeholder={key}
-            value={formData[key]}
-            onChange={handleInputChange}
-            className="p-2 border rounded"
-          />
+      <div className="grid md:grid-cols-2 gap-6">
+        {Object.entries(formData).map(([key, value]) => (
+          <div key={key} className="flex flex-col">
+            <label className="text-sm font-semibold text-gray-700 mb-1">
+              {key === "productCode"
+                ? "Mã sản phẩm"
+                : key === "entryDate"
+                ? "Ngày nhập"
+                : key === "quantity"
+                ? "Số lượng"
+                : key === "unit"
+                ? "Đơn vị"
+                : key === "image"
+                ? "Hình ảnh (URL)"
+                : key === "name"
+                ? "Tên sản phẩm"
+                : key === "supplier"
+                ? "Nhà cung cấp"
+                : key === "category"
+                ? "Danh mục"
+                : key}
+            </label>
+            <input
+              name={key}
+              placeholder={(() => {
+                switch (key) {
+                  case "productCode":
+                    return "Nhập mã sản phẩm";
+                  case "entryDate":
+                    return "Chọn ngày nhập";
+                  case "quantity":
+                    return "Nhập số lượng";
+                  case "unit":
+                    return "Nhập đơn vị";
+                  case "image":
+                    return "Nhập URL hình ảnh";
+                  case "name":
+                    return "Nhập tên sản phẩm";
+                  case "supplier":
+                    return "Nhập tên nhà cung cấp";
+                  case "category":
+                    return "Nhập danh mục";
+                  default:
+                    return "Nhập thông tin";
+                }
+              })()}
+              value={formData[key]}
+              onChange={handleInputChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+              type={
+                key === "entryDate"
+                  ? "date"
+                  : key === "quantity"
+                  ? "number"
+                  : "text"
+              }
+            />
+          </div>
         ))}
       </div>
-      <div className="mt-4 flex gap-4">
+      <div className="mt-6 flex gap-4 ">
         <button
-          className="bg-green-500 text-white px-4 py-2 rounded"
+          className="px-4 py-2 bg-gradient-to-r from-green-400 to-teal-500 text-white rounded hover:bg-teal-700"
           onClick={isEditing ? handleEditIngredient : handleAddIngredient}
         >
-          {isEditing ? "Cập nhật" : "Thêm"}
+          {isEditing ? "Cập nhật" : "Thêm mới"}
         </button>
         <button
-          className="bg-gray-300 px-4 py-2 rounded"
+          className="bg-gray-300 hover:bg-gray-400 text-black px-6 py-2 rounded-lg"
           onClick={() => {
             setIsAdding(false);
             setIsEditing(null);
@@ -160,176 +194,157 @@ const IngredientList = () => {
     </div>
   );
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 border-t-4 border-blue-500 rounded-full"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center text-cyan-700">
-        Danh sách sản phẩm
+    <div className="container mx-auto px-6 pb-12">
+      <h1 className="text-3xl font-bold text-cyan-700 text-center">
+        Danh Sách Sản Phẩm
       </h1>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-6">
-        {/* Nhóm: tìm kiếm + lọc */}
+      {/* Bộ lọc tìm kiếm */}
+      <div className="bg-white p-6 rounded-2xl shadow-md mb-8 flex flex-col md:flex-row md:items-center gap-4">
         <div className="flex flex-col md:flex-row md:gap-4 flex-1">
-          {/* Ô tìm kiếm */}
-          <div className="relative w-full md:w-1/2">
+          <div className="relative w-full md:w-1/3">
             <input
               type="text"
               className="w-full px-4 py-2 border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               placeholder="Tìm theo tên hoặc mã sản phẩm..."
               value={searchTerm}
-              onChange={handleSearchChange}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
             />
             <div className="absolute right-3 top-3 text-cyan-500">
               <FaSearch size={18} />
             </div>
           </div>
 
-          {/* Lọc theo nhà cung cấp */}
-          <div className="w-full md:w-60">
-            <select
-              value={selectedSupplier}
-              onChange={(e) => {
-                setSelectedSupplier(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full px-4 py-2 border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            >
-              <option value="">Tất cả nhà cung cấp</option>
-              {Array.from(
-                new Set(ingredients.map((item) => item.supplier))
-              ).map((supplier, idx) => (
+          <select
+            value={selectedSupplier}
+            onChange={(e) => {
+              setSelectedSupplier(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full md:w-60 px-4 py-2 border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          >
+            <option value="">Tất cả nhà cung cấp</option>
+            {Array.from(new Set(ingredients.map((item) => item.supplier))).map(
+              (supplier, idx) => (
                 <option key={idx} value={supplier}>
                   {supplier}
                 </option>
-              ))}
-            </select>
-          </div>
+              )
+            )}
+          </select>
 
-          {/* Lọc theo danh mục */}
-          <div className="w-full md:w-48">
-            <select
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setCurrentPage(1); // 🛠️ Thêm dòng này để reset về trang đầu
-              }}
-              className="w-full px-4 py-2 border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            >
-              <option value="">Tất cả danh mục</option>
-              {Array.from(
-                new Set(ingredients.map((item) => item.category))
-              ).map((category, idx) => (
+          <select
+            value={selectedCategory}
+            onChange={(e) => {
+              setSelectedCategory(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full md:w-48 px-4 py-2 border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          >
+            <option value="">Tất cả danh mục</option>
+            {Array.from(new Set(ingredients.map((item) => item.category))).map(
+              (category, idx) => (
                 <option key={idx} value={category}>
                   {category}
                 </option>
-              ))}
-            </select>
-          </div>
+              )
+            )}
+          </select>
         </div>
 
-        {/* Nút thêm sản phẩm */}
-        <div className="w-full md:w-auto">
-          <button
-            onClick={() => {
-              setIsAdding(true);
-              setFormData({
-                name: "",
-                quantity: "",
-                unit: "",
-                productCode: "",
-                supplier: "",
-                category: "",
-                expiryDate: "",
-                image: "",
-              });
-            }}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg w-full md:w-auto justify-center hover:bg-green-600"
-          >
-            <FaPlus /> Thêm sản phẩm
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            setIsAdding(true);
+            setFormData({
+              name: "",
+              quantity: "",
+              unit: "",
+              productCode: "",
+              supplier: "",
+              category: "",
+              entryDate: "",
+              image: "",
+            });
+          }}
+          className="flex items-center gap-2 bg-gradient-to-r from-green-400 to-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-700 whitespace-nowrap"
+        >
+          <FaPlus className="inline mr-2" /> Thêm sản phẩm
+        </button>
       </div>
 
-      {(isAdding || isEditing) && renderForm()}
+      {/* Hiển thị form nếu đang thêm hoặc sửa */}
+      {isAdding || isEditing ? renderForm() : null}
 
-      {/* Bảng sản phẩm */}
-      <div className="overflow-x-auto shadow-lg rounded-lg">
-        <table className="min-w-full bg-white border border-gray-300 rounded-lg">
-          <thead>
-            <tr className="bg-cyan-600 text-white text-lg">
-              <th className="px-6 py-3 text-left">Hình ảnh</th>
-              <th className="px-6 py-3 text-left">Tên sản phẩm</th>
-              <th className="px-6 py-3 text-left">Số lượng</th>
-              <th className="px-6 py-3 text-left">Đơn vị</th>
-              <th className="px-6 py-3 text-left">Mã SP</th>
-              <th className="px-6 py-3 text-left">Nhà cung cấp</th>
-              <th className="px-6 py-3 text-left">Danh mục</th>
-              <th className="px-6 py-3 text-left">Ngày nhập</th>
-              <th className="px-6 py-3 text-left">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentIngredients.length === 0 ? (
-              <tr>
-                <td colSpan="9" className="text-center text-red-500 py-6">
-                  Không tìm thấy sản phẩm
-                </td>
-              </tr>
-            ) : (
-              currentIngredients.map((ingredient) => (
-                <tr key={ingredient.id} className="hover:bg-gray-100">
-                  <td className="px-6 py-4">
-                    <img
-                      src={ingredient.image}
-                      alt={ingredient.name}
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                  </td>
-                  <td className="px-6 py-4">{ingredient.name}</td>
-                  <td className="px-6 py-4">{ingredient.quantity}</td>
-                  <td className="px-6 py-4">{ingredient.unit}</td>
-                  <td className="px-6 py-4">{ingredient.productCode}</td>
-                  <td className="px-6 py-4">{ingredient.supplier}</td>
-                  <td className="px-6 py-4">{ingredient.category}</td>
-                  <td className="px-6 py-4">{ingredient.expiryDate}</td>
-                  <td className="px-6 py-4 flex gap-2">
-                    <button
-                      onClick={() => startEdit(ingredient)}
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      <Pencil size={20} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteIngredient(ingredient.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      {/* Danh sách sản phẩm dạng thẻ */}
+      <div className="relative grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {currentIngredients.length === 0 ? (
+          <div className="col-span-full text-center text-red-500 text-lg font-semibold">
+            Không tìm thấy sản phẩm phù hợp
+          </div>
+        ) : (
+          currentIngredients.map((ingredient) => (
+            <div
+              key={ingredient.id}
+              className="relative bg-white p-5 pb-20 rounded-2xl shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-transform duration-300 border border-cyan-100"
+            >
+              <img
+                src={ingredient.image}
+                alt={ingredient.name}
+                className="w-64 h-90 object-cover rounded-lg mb-4"
+              />
+              <h3 className="text-xl font-bold text-cyan-700 mb-1 text-center">
+                {ingredient.name}
+              </h3>
+              <p className="text-sm text-gray-600 mb-1">
+                Mã sản phẩm: {ingredient.productCode}
+              </p>
+              <p className="text-sm text-gray-600 mb-1">
+                Số lượng: {ingredient.quantity} {ingredient.unit}
+              </p>
+              <p className="text-sm text-gray-600 mb-1">
+                Danh mục: {ingredient.category}
+              </p>
+              <p className="text-sm text-gray-600 mb-1">
+                Nhà cung cấp: {ingredient.supplier}
+              </p>
+              <p className="text-sm text-gray-600 mb-3">
+                Ngày nhập: {ingredient.entryDate}
+              </p>
+
+              {/* Nút cố định dưới */}
+              <div className="absolute bottom-4 left-5 right-5 flex gap-3">
+                <button
+                  onClick={() => startEdit(ingredient)}
+                  className="flex-1 bg-gradient-to-r from-sky-500 to-cyan-500 hover:brightness-110 text-white px-3 py-2 rounded-lg shadow"
+                >
+                  <Pencil className="inline mr-1" size={16} /> Sửa
+                </button>
+                <button
+                  onClick={() => handleDeleteIngredient(ingredient.id)}
+                  className="flex-1 bg-gradient-to-r from-pink-500 to-rose-400 hover:brightness-110 text-white px-3 py-2 rounded-lg shadow"
+                >
+                  <Trash2 className="inline mr-1" size={16} /> Xoá
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Phân trang */}
-      <div className="mt-6 flex justify-center gap-2">
+      <div className="mt-10 flex justify-center gap-2">
         {Array.from({ length: totalPages }, (_, index) => (
           <button
             key={index}
-            onClick={() => handlePageChange(index + 1)}
-            className={`px-4 py-2 rounded-lg ${
+            onClick={() => setCurrentPage(index + 1)}
+            className={`px-4 py-2 rounded-lg font-semibold text-sm transition ${
               currentPage === index + 1
                 ? "bg-cyan-600 text-white"
-                : "bg-gray-300 text-black"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
             {index + 1}

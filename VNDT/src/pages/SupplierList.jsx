@@ -17,6 +17,9 @@ const SupplierList = () => {
     category: "",
     name: "",
     quantity: "",
+    imgsp: "",
+    email: "",
+    phone: "",
   });
 
   const apiUrl = "https://67fa743d8ee14a542627bf04.mockapi.io/Lab6/VNDT";
@@ -48,6 +51,9 @@ const SupplierList = () => {
           totalQuantity: 0,
           categories: new Set(),
           productNames: [],
+          imgsp: item.imgsp,
+          email: item.email,
+          phone: item.phone,
           raw: [],
         };
       }
@@ -72,6 +78,9 @@ const SupplierList = () => {
       category: "",
       name: "",
       quantity: "",
+      imgsp: "",
+      email: "",
+      phone: "",
     });
     setEditingSupplier(null);
     setShowModal(true);
@@ -96,7 +105,7 @@ const SupplierList = () => {
       setShowModal(false);
       fetchIngredients();
     } catch (error) {
-      alert(" Có lỗi xảy ra khi lưu dữ liệu.");
+      alert("Có lỗi xảy ra khi lưu dữ liệu.");
     }
   };
 
@@ -116,14 +125,17 @@ const SupplierList = () => {
   };
 
   const filteredSuppliers = suppliersData.filter((s) =>
-    s.supplier.toLowerCase().includes(searchTerm.toLowerCase())
+    [s.supplier, s.supplierAddress, s.supplierCode]
+      .join(" ")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-cyan-700">
-          Danh sách Nhà Cung Cấp
+      <div className="flex justify-center items-center mb-6">
+        <h1 className="text-3xl font-bold text-cyan-700 text-center">
+          Danh Sách Nhà Cung Cấp
         </h1>
       </div>
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
@@ -142,7 +154,7 @@ const SupplierList = () => {
 
         <button
           onClick={openAddModal}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 whitespace-nowrap"
+          className="flex items-center gap-2 bg-gradient-to-r from-green-400 to-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-700 whitespace-nowrap"
         >
           <FaPlus size={18} /> Thêm nhà cung cấp
         </button>
@@ -152,8 +164,13 @@ const SupplierList = () => {
         {filteredSuppliers.map((supplier, idx) => (
           <div
             key={idx}
-            className="bg-cyan-50 border p-4 border-gray-200 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 relative"
+            className="bg-white border p-4 border-gray-200 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 relative"
           >
+            <img
+              src={supplier.imgsp || "https://via.placeholder.com/150"}
+              alt="supplier"
+              className="w-full h-40 object-cover rounded-xl mb-4"
+            />
             <h2 className="text-xl font-bold text-teal-600 mb-2">
               🏢 {supplier.supplier}
             </h2>
@@ -162,6 +179,12 @@ const SupplierList = () => {
             </p>
             <p>
               <strong>Địa chỉ:</strong> {supplier.supplierAddress}
+            </p>
+            <p>
+              <strong>📧 Email:</strong> {supplier.email || "--"}
+            </p>
+            <p>
+              <strong>📞 SĐT:</strong> {supplier.phone || "--"}
             </p>
             <p>
               <strong>Tổng số lượng hàng:</strong> {supplier.totalQuantity}
@@ -178,7 +201,7 @@ const SupplierList = () => {
                 ))}
               </ul>
             </div>
-            <div className="absolute top-4 right-4 flex gap-2">
+            <div className="absolute top-52 right-4 flex gap-2">
               <button
                 onClick={() => openEditModal(supplier)}
                 className="text-blue-500 hover:text-blue-700"
@@ -215,6 +238,9 @@ const SupplierList = () => {
                 { label: "Danh mục (category)", name: "category" },
                 { label: "Tên sản phẩm", name: "name" },
                 { label: "Số lượng", name: "quantity", type: "number" },
+                { label: "Link ảnh nhà cung cấp", name: "imgsp" },
+                { label: "Email", name: "email" },
+                { label: "Số điện thoại", name: "phone" },
               ].map(({ label, name, type = "text" }) => (
                 <div key={name}>
                   <label className="block text-sm font-medium text-gray-600">
@@ -240,7 +266,7 @@ const SupplierList = () => {
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-cyan-700"
+                className="px-4 py-2 bg-gradient-to-r from-green-400 to-teal-500 text-white rounded hover:bg-teal-700"
               >
                 {editingSupplier ? "Cập nhật" : "Lưu"}
               </button>
