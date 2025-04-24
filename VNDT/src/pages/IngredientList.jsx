@@ -296,7 +296,7 @@ const IngredientList = () => {
                 alt={ingredient.name}
                 className="w-64 h-90 object-cover rounded-lg mb-4"
               />
-              <h3 className="text-xl font-bold text-cyan-700 mb-1 text-center">
+              <h3 className="text-xl font-bold text-cyan-700 mb-1 ">
                 {ingredient.name}
               </h3>
               <p className="text-sm text-gray-600 mb-1">
