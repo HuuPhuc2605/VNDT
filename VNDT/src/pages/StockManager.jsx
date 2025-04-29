@@ -38,6 +38,12 @@ const StockManager = () => {
       setProducts(response.data)
     } catch (error) {
       console.error("Error fetching products", error)
+      addNotification(
+        "Không thể tải dữ liệu sản phẩm từ máy chủ.",
+        "error",
+        "system",
+        `system-error-fetch-${Date.now()}`,
+      )
     } finally {
       setLoading(false)
     }
@@ -139,12 +145,50 @@ const StockManager = () => {
       // Cập nhật sản phẩm
       await axios.put(`${apiUrl}/${product.id}`, { ...product, quantity: newQuantity.toString() })
 
-      // Thông báo
+      // Tạo thông báo theo thời gian thực
+      const operationText = currentOperation === "import" ? "nhập" : "xuất"
+      const notificationType = currentOperation === "import" ? "success" : "info"
+      const notificationId = `inventory-${operationText}-${product.id}-${Date.now()}`
+
+      // Thông báo chi tiết về hoạt động nhập/xuất kho
       addNotification(
-        `Đã ${currentOperation === "import" ? "nhập" : "xuất"} ${formData.quantity} ${product.unit} ${
-          product.name
-        } thành công`,
+        `Đã ${operationText} ${formData.quantity} ${product.unit} ${product.name}. Số lượng hiện tại: ${newQuantity} ${product.unit}.`,
+        notificationType,
+        "inventory",
+        notificationId,
       )
+
+      // Kiểm tra mức tồn kho sau khi cập nhật
+      const minStockLevel = product.minStockLevel ? Number.parseInt(product.minStockLevel) : 10
+
+      if (newQuantity <= 0) {
+        // Sản phẩm đã hết hàng
+        addNotification(
+          `CẢNH BÁO: Sản phẩm '${product.name}' đã hết hàng sau khi ${operationText}! Cần nhập thêm gấp.`,
+          "error",
+          "inventory",
+          `inventory-empty-${product.id}-${Date.now()}`,
+        )
+      } else if (newQuantity < minStockLevel) {
+        // Sản phẩm dưới mức tồn kho tối thiểu
+        const severity = newQuantity < minStockLevel * 0.5 ? "error" : "warning"
+        addNotification(
+          `CẢNH BÁO: Sản phẩm '${product.name}' dưới mức tồn kho tối thiểu sau khi ${operationText} (còn ${newQuantity} ${product.unit}, mức tối thiểu ${minStockLevel}).`,
+          severity,
+          "inventory",
+          `inventory-low-${product.id}-${Date.now()}`,
+        )
+      }
+
+      // Ghi lại hoạt động với ghi chú (nếu có)
+      if (formData.notes) {
+        addNotification(
+          `Ghi chú cho hoạt động ${operationText} kho: "${formData.notes}" (Sản phẩm: ${product.name})`,
+          "info",
+          "inventory",
+          `inventory-note-${product.id}-${Date.now()}`,
+        )
+      }
 
       // Đóng modal và làm mới dữ liệu
       setShowImportModal(false)
@@ -153,6 +197,12 @@ const StockManager = () => {
     } catch (error) {
       console.error("Error updating stock", error)
       alert("Có lỗi xảy ra khi cập nhật kho")
+      addNotification(
+        `Lỗi khi ${currentOperation === "import" ? "nhập" : "xuất"} kho: ${error.message}`,
+        "error",
+        "system",
+        `system-error-stock-${Date.now()}`,
+      )
     }
   }
 
