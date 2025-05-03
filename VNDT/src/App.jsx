@@ -17,7 +17,7 @@ function App() {
   const { user } = useAuth();
 
   return (
-    <div className="flex">
+    <div className="flex ">
       {/* Chỉ hiển thị Header nếu người dùng đã đăng nhập */}
       {user && <Header />}
 
