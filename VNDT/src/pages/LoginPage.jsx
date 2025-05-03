@@ -29,7 +29,7 @@ const LoginPage = () => {
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage:
-            'url("https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745468004/3652af85-5c1c-41a8-8317-08e8d997fdf5.png")',
+            'url("https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745597079/e2abc615-9735-42bc-a392-8dee042725ea.png")',
         }}
       ></div>
       <div className="absolute inset-0 bg-black opacity-40"></div>

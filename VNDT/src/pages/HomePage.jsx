@@ -1,3 +1,4 @@
+// HomePage.jsx - Phiên bản sắp xếp lại bố cục chuyên nghiệp hơn
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -12,15 +13,15 @@ import toast, { Toaster } from "react-hot-toast";
 import CountUp from "react-countup";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-
-// Bộ sưu tập ảnh
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Slider from "react-slick";
 const galleryImages = [
   "https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745468061/85f9295f-a4dc-4132-ae43-6c5fb21cf27e.png",
   "https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745468082/c540aa6e-c2e6-4ac8-8c0a-124de9c432d7.png",
   "https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745468129/93b965c3-feb1-4f01-a8fd-7dcedd9b1366.png",
 ];
 
-// Nút điều hướng
 const navButtons = [
   {
     label: "Danh sách hàng hoá",
@@ -62,9 +63,27 @@ const navButtons = [
 const HomePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const heroImages = [
+    "https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745596082/270d407c-1b4f-4bd2-8b6a-d8194b2eb0ea.png",
+    "https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745596123/6c5bfb40-ae48-482b-80b1-a167e08adcd2.png",
+    "https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745596161/7426b9bf-d63b-45d4-b0b4-d4607b880aee.png",
+    "https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745596184/f5b26bbe-84bf-4abb-9408-261867240a74.png",
+    "https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745596211/545d5e43-e097-4876-9700-0aa904ffdba2.png",
+    "https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745596243/7dc33ed8-448f-4e12-88a7-9f59c23a47e1.png",
+    "https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745596454/6090234e-d657-48df-82d6-a5e52e9617b9.png",
+  ];
+
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
   const [ingredients, setIngredients] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [news, setNews] = useState([
-    // Tin tức giả định
     {
       title: "Cập nhật Hệ thống Quản lý Kho Hàng",
       summary:
@@ -91,7 +110,6 @@ const HomePage = () => {
     },
   ]);
 
-  // Gọi API lấy dữ liệu
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -100,34 +118,38 @@ const HomePage = () => {
         );
         setIngredients(res.data);
       } catch (err) {
-        console.error("Lỗi tải dữ liệu:", err);
+        console.error("Lỗi tải nguyên liệu:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
-
-    // Fetch news updates
-    const fetchNews = async () => {
-      try {
-        const newsRes = await axios.get("https://api.example.com/news");
-        setNews(newsRes.data);
-      } catch (err) {
-        console.error("Lỗi tải tin tức:", err);
-      }
-    };
-    fetchNews();
   }, []);
 
-  // Tính toán thống kê thật
+  useEffect(() => {
+    news.forEach((item) => {
+      toast(`📢 ${item.title}: ${item.summary}`, {
+        icon: "📰",
+        duration: 4000,
+        style: {
+          maxWidth: "700px",
+          fontSize: "16px",
+          padding: "16px 24px",
+        },
+      });
+    });
+  }, [news]);
+
   const stats = useMemo(() => {
     const totalProducts = ingredients.length;
     const totalQuantity = ingredients.reduce(
-      (sum, item) => sum + parseInt(item.quantity || 0),
+      (sum, item) => sum + Number(item.quantity || 0),
       0
     );
     const uniqueSuppliers = new Set(ingredients.map((item) => item.supplier))
       .size;
     const stockAlerts = ingredients.filter(
-      (item) => parseInt(item.quantity) < 10
+      (item) => Number(item.quantity) < 10
     ).length;
 
     return [
@@ -158,50 +180,96 @@ const HomePage = () => {
     ];
   }, [ingredients]);
 
-  const getGreeting = () => {
+  const greetingText = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return "Chào buổi sáng";
     if (hour < 18) return "Chào buổi chiều";
     return "Chào buổi tối";
-  };
+  }, []);
 
   const handleNavigate = (path, label) => {
     navigate(path);
     toast.success(`Chuyển đến trang ${label}`);
   };
-  useEffect(() => {
-    news.forEach((item) => {
-      toast(`📢 ${item.title}: ${item.summary}`, {
-        icon: "📰",
-        duration: 4000,
-        style: {
-          maxWidth: "700px",
-          fontSize: "16px",
-          padding: "16px 24px",
-        },
-      });
-    });
-  }, [news]);
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-xl text-gray-600">
+        Đang tải dữ liệu...
+      </div>
+    );
+  }
   return (
     <div className="p-6 space-y-16 bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 min-h-screen">
       <Toaster />
 
-      {/* Hero */}
-      <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-        <img
-          src="https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745468004/3652af85-5c1c-41a8-8317-08e8d997fdf5.png"
+      {/* Hero - phần mở đầu */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative rounded-2xl overflow-hidden shadow-2xl"
+      >
+        <motion.img
+          key={heroIndex}
+          src={heroImages[heroIndex]}
           alt="Warehouse Hero"
           className="w-full h-96 object-cover"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
         />
-        <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex flex-col items-center justify-center space-y-4 text-center">
+        <div className="absolute inset-0 bg-black bg-opacity-10 backdrop-blur-[1px] flex flex-col items-center justify-center space-y-4 text-center">
           <h1 className="text-white text-5xl md:text-6xl font-bold drop-shadow-lg">
             Quản lý kho hàng thông minh
           </h1>
-          <p className="text-white text-lg md:text-xl italic">
-            {getGreeting()}, {user?.username || "bạn"} 👋
+          <p className="text-white  text-xl md:text-xl italic">
+            {greetingText}, {user?.username || "bạn"} 👋
           </p>
         </div>
+      </motion.div>
+
+      {/* Giới thiệu hệ thống */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="bg-white rounded-2xl p-8 shadow-xl grid grid-cols-1 md:grid-cols-2 gap-6 items-center"
+      >
+        <img
+          src="https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745468331/1ff9a4fc-ba9a-4ce9-a699-32d852620979.png"
+          alt="System Overview"
+          className="rounded-xl w-full object-cover h-64"
+        />
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Về hệ thống</h2>
+          <p className="text-gray-600 text-lg leading-relaxed">
+            Hệ thống giúp bạn kiểm soát hàng tồn, quản lý chuỗi cung ứng, và
+            theo dõi cảnh báo – tất cả trên nền tảng trực quan và hiện đại.
+          </p>
+        </div>
+      </motion.div>
+
+      {/* Thống kê nhanh */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((item, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: idx * 0.1 }}
+            className={`rounded-2xl shadow-xl p-6 flex items-center gap-4 bg-gradient-to-br ${item.gradient} text-white hover:shadow-2xl transform hover:scale-105 duration-300`}
+          >
+            {item.icon}
+            <div>
+              <p className="text-3xl font-bold">
+                <CountUp end={item.value} duration={2} />
+              </p>
+              <p className="text-sm font-medium">{item.label}</p>
+            </div>
+          </motion.div>
+        ))}
       </div>
+
       {/* Tin tức */}
       <div className="bg-white rounded-2xl p-8 shadow-xl">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">
@@ -223,8 +291,6 @@ const HomePage = () => {
                   <p className="text-gray-600 mt-2">{item.summary}</p>
                   <a
                     href={item.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="text-blue-600 hover:underline mt-2 block"
                   >
                     Đọc thêm
@@ -237,25 +303,27 @@ const HomePage = () => {
           <p className="text-gray-600">Chưa có tin tức mới.</p>
         )}
       </div>
-      {/* Quote */}
-      <p className="text-center italic text-gray-700 text-lg">
-        “Quản lý kho hiệu quả là chìa khoá cho chuỗi cung ứng bền vững.”
-      </p>
 
-      {/* Giới thiệu hệ thống */}
-      <div className="bg-white rounded-2xl p-8 shadow-xl grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-        <img
-          src="https://res.cloudinary.com/dkzpfo8b2/image/upload/v1745468331/1ff9a4fc-ba9a-4ce9-a699-32d852620979.png"
-          alt="System Overview"
-          className="rounded-xl w-full object-cover h-64"
-        />
-        <div>
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Về hệ thống</h2>
-          <p className="text-gray-600 text-lg leading-relaxed">
-            Hệ thống giúp bạn kiểm soát hàng tồn, quản lý chuỗi cung ứng, và
-            theo dõi cảnh báo – tất cả trên nền tảng trực quan và hiện đại.
-          </p>
-        </div>
+      {/* Nút điều hướng */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {navButtons.map((btn, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: idx * 0.1 }}
+            onClick={() => handleNavigate(btn.path, btn.label)}
+            className={`cursor-pointer bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transform hover:scale-105 flex flex-col items-center text-center space-y-2 border-2 ${btn.borderColor}`}
+          >
+            <div
+              className={`text-4xl bg-gradient-to-br ${btn.gradient} text-white p-4 rounded-full shadow-lg`}
+            >
+              {btn.icon}
+            </div>
+            <p className="text-base font-semibold text-gray-700">{btn.label}</p>
+            <span className="text-cyan-600 font-bold text-xl">→</span>
+          </motion.div>
+        ))}
       </div>
 
       {/* Bộ sưu tập ảnh */}
@@ -277,50 +345,10 @@ const HomePage = () => {
         ))}
       </div>
 
-      {/* Thống kê nhanh */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((item, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: idx * 0.1 }}
-            className={`rounded-2xl shadow-xl p-6 flex items-center gap-4 bg-gradient-to-br ${item.gradient} text-white hover:shadow-2xl transition transform hover:scale-105 duration-300`}
-          >
-            {item.icon}
-            <div>
-              <p className="text-3xl font-bold">
-                <CountUp end={item.value} duration={2} />
-              </p>
-              <p className="text-sm font-medium">{item.label}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Nút điều hướng */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {navButtons.map((btn, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: idx * 0.1 }}
-            onClick={() => handleNavigate(btn.path, btn.label)}
-            className={`cursor-pointer bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition transform hover:scale-105 flex flex-col items-center text-center space-y-2 border-2 ${btn.borderColor}`}
-          >
-            <div
-              className={`text-4xl bg-gradient-to-br ${btn.gradient} text-white p-4 rounded-full shadow-lg`}
-            >
-              {btn.icon}
-            </div>
-            <p className="text-base font-semibold text-gray-700">{btn.label}</p>
-            <span className="text-cyan-600 font-bold text-xl group-hover:translate-x-1 transition-transform">
-              →
-            </span>
-          </motion.div>
-        ))}
-      </div>
+      {/* Trích dẫn kết thúc */}
+      <p className="text-center italic text-gray-700 text-lg">
+        “Quản lý kho hiệu quả là chìa khoá cho chuỗi cung ứng bền vững.”
+      </p>
     </div>
   );
 };
